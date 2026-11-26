@@ -235,6 +235,8 @@ export function TaskListDoc({ p }: { p: Project }) {
 }
 
 export function Receipt({ p, pay }: any) {
+  const idx = p.payments.findIndex((x: any) => x.id === pay.id);
+  const paidAt = p.payments.filter((x: any, i: number) => x.date < pay.date || (x.date === pay.date && i <= idx)).reduce((s: number, x: any) => s + (Number(x.amount) || 0), 0);
   return (
     <div className="receipt" data-testid="doc-receipt">
       <DocHeader title="REÇU DE PAIEMENT" subtitle={`N° ${pay.receiptNo}`} />
@@ -242,8 +244,8 @@ export function Receipt({ p, pay }: any) {
       <KV rows={[['Reçu N°', pay.receiptNo], ['Reçu de', p.client], ['Projet', `${p.title} (${p.number})`], ['Date du paiement', fdate(pay.date)], ['Mode de paiement', pay.mode], ['Référence', pay.ref], ['Objet', pay.obs || "Honoraires d'architecture"]]} />
       <div className="doc-totals avoid-break">
         <div><span>Honoraires convenus</span><b>{fcfa(p.fees)}</b></div>
-        <div><span>Total encaissé à ce jour</span><b>{fcfa(totalPaid(p))}</b></div>
-        <div><span>Solde restant</span><b>{fcfa(balance(p))}</b></div>
+        <div><span>Total encaissé à cette date</span><b>{fcfa(paidAt)}</b></div>
+        <div><span>Solde restant</span><b>{fcfa((Number(p.fees) || 0) - paidAt)}</b></div>
       </div>
       <Signature />
     </div>

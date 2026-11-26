@@ -20,7 +20,7 @@ export function TasksTab({ p }: any) {
   };
   const toggle = (t: any) => save(p.tasks.map((x: any) => (x.id === t.id ? { ...x, done: !x.done } : x)), `Tâche ${t.done ? 'rouverte' : 'terminée'} : ${t.title}`);
   const del = (t: any) => window.confirm(`Supprimer la tâche « ${t.title} » ?`) && save(p.tasks.filter((x: any) => x.id !== t.id), `Tâche supprimée : ${t.title}`);
-  const saveEdit = () => { save(p.tasks.map((x: any) => (x.id === edit.id ? edit : x))); setEdit(null); };
+  const saveEdit = () => { save(p.tasks.map((x: any) => (x.id === edit.id ? edit : x)), `Tâche modifiée : ${edit.title}`); setEdit(null); };
 
   const doneN = p.tasks.filter((t: any) => t.done).length;
   const pct = p.tasks.length ? Math.round((doneN / p.tasks.length) * 100) : 0;

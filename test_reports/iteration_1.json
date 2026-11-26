@@ -1,0 +1,32 @@
+{
+  "summary": "One focused frontend E2E pass (Playwright, 3 runs, desktop 1920 + mobile 390) of the localStorage-only PWA. All 12 requested feature areas work: project creation (ARCH-2026-001, advance auto-payment REC-2026-0001, balance 1 000 000 FCFA), edit + status select + history, search (number/client/location) and all filters, steps (dates/status/obs/add/delete, 11 default), tasks (add/edit/delete/toggle, % = done/total, Restantes filter), finance (multiple payments, 0 rejected, totals, 'Payé' badge, receipt preview), docs (upload <1MB, view in blob tab, download, delete, >1MB rejected with toast), print previews (fiche, tâches, état financier, reçu, rapport d'activité, état financier global) + PDF downloads, nav/toolbar hidden under print media, CSV exports (projects/payments/tasks, from Projects/Tasks/Payments/Reports), settings header saved and used in docs, JSON backup export -> wipe -> import restores data and counters (next = ARCH-2026-002), invalid JSON rejected, persistence after reload, dashboard stats/lists/échéances, mobile menu opens/closes on nav, no horizontal overflow, manifest.json (name SUIVI PROJETS) and sw.js served 200. No page errors.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "Receipt (PrintDocs.tsx Receipt)", "issue": "Printing an older receipt (e.g. REC-2026-0001 for the 500 000 advance) shows 'Total encaissé à ce jour' 1 500 000 and 'Solde restant' 0, which are today's totals, not the totals at the time of that payment. A receipt should show the totals as of its own payment: payments up to and including it.", "selector": "[data-testid=doc-receipt]", "priority": "MEDIUM"}
+    ],
+    "integration_issues": [
+      {"flow": "Edit project advance", "issue": "Changing 'advance' on an existing project (ProjectForm edit) only updates 'Avance convenue'. No payment is created or changed, so 'Avance convenue' can drift from the payment history without the user noticing. Either lock the field on edit or explain it in the form.", "affected_selectors": ["[data-testid=form-advance]"]}
+    ],
+    "design_issues": [
+      {"screen": "History tab", "issues": ["Task edits (edit-task-save), step date/name/observation changes and settings changes are not written to the history log. Only status changes, adds and deletes are logged."]},
+      {"screen": "Forms", "issues": ["Date fields use the browser's native picker, which shows mm/dd/yyyy in an en-US browser. This is acceptable, but a French dd/mm/yyyy display would be more consistent."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Receipt: compute 'Total encaissé à ce jour' and 'Solde restant' from payments up to and including that receipt (by date, then receipt number)",
+    "Optional: log task edits and step date/obs changes in the history; clarify or lock the advance field when editing a project"
+  ],
+  "critical_code_review_comments": [
+    "store.tsx: receipt number year uses the current year while the counter is global and never resets. That is fine, but document it.",
+    "FinanceTab/PrintDocs: payments are sorted by date only, so same-day payments rely on insertion order. Use receiptNo as a tie-breaker.",
+    "SettingsPage: storage usage counts string length (UTF-16), so it is only approximate. That is OK as an estimate."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (no backend)", "frontend": "97%"},
+  "seed_data_creation": "Only TEST_ projects were created, in isolated browser contexts. The localStorage key was removed at the end of the last run.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Each browser_automation call starts with fresh localStorage, so recreate data in every script. Tested data-testids: form-*, project-status-select, tab-*, step-start/end/status/obs/delete-{i}, task-toggle/edit/delete-{id}, tasks-filter-left, pay-amount, pay-mode, payment-row-REC-*, print-receipt-REC-*, doc-*, download-pdf-btn, export-*-btn, settings-*, import-backup-*, mobile-menu-btn. Routes: /, /projets, /projets/nouveau, /paiements, /rapports, /parametres."
+}

@@ -74,7 +74,7 @@ export default function ProjectForm() {
           <Field label="Honoraires totaux convenus (FCFA)">{inp('fees', { type: 'number', min: 0 })}</Field>
           <Field label="Montant de l'avance (FCFA)">{inp('advance', { type: 'number', min: 0 })}</Field>
         </div>
-        {!existing && <p className="muted small">L'avance saisie est automatiquement enregistrée comme premier paiement (avec reçu).</p>}
+        <p className="muted small">{existing ? "Modifier l'avance ici ne crée pas de paiement : enregistrez les encaissements dans l'onglet Finances." : "L'avance saisie est automatiquement enregistrée comme premier paiement (avec reçu)."}</p>
       </Card>
       <div className="form-foot"><button type="submit" className="btn primary" data-testid="form-submit-bottom-btn"><Save size={16} />Enregistrer le projet</button></div>
     </form>
