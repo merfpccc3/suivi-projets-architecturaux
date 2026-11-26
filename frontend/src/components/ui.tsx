@@ -11,8 +11,8 @@ export const StatusBadge = ({ status, testId }: any) => (
 );
 
 export const FinBadge = ({ f }: any) => (
-  <span className={`badge ${f === 'paid' ? 'b-success' : f === 'due' ? 'b-warn' : 'b-muted'}`}>
-    {f === 'paid' ? 'Payé' : f === 'due' ? 'Solde dû' : '—'}
+  <span className={`badge ${f === 'paid' ? 'b-success' : f === 'due' ? 'b-warn' : f === 'over' ? 'b-danger' : 'b-muted'}`} data-testid="fin-badge">
+    {f === 'paid' ? 'Payé' : f === 'due' ? 'Solde dû' : f === 'over' ? 'Trop-perçu' : 'À renseigner'}
   </span>
 );
 

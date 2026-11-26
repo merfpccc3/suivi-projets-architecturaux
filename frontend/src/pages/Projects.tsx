@@ -5,7 +5,7 @@ import { useStore } from '../store';
 import { Project } from '../types';
 import { Card, Empty, FinBadge, Progress, StatusBadge } from '../components/ui';
 import { usePrint, ActivityReport } from '../components/PrintDocs';
-import { PROJECT_TYPES, STATUSES, balance, downloadCSV, fcfa, fdate, finLabel, finStatus, progress, statusLabel, today, totalPaid } from '../lib/data';
+import { PROJECT_TYPES, STATUSES, balance, balanceText, feesText, downloadCSV, fcfa, fdate, finLabel, finStatus, progress, statusLabel, today, totalPaid } from '../lib/data';
 
 export default function Projects() {
   const { projects } = useStore().data;
@@ -55,7 +55,7 @@ export default function Projects() {
               <tr key={p.id} onClick={() => nav(`/projets/${p.id}`)} data-testid={`project-row-${p.number}`}>
                 <td className="mono">{p.number}</td><td><b>{p.title}</b><div className="muted small">{p.type}</div></td><td>{p.client}</td><td>{p.location}</td>
                 <td><StatusBadge status={p.status} /></td><td><Progress value={progress(p)} /></td>
-                <td className="r">{fcfa(p.fees)}</td><td className="r">{fcfa(balance(p))}</td><td><FinBadge f={finStatus(p)} /></td>
+                <td className="r">{feesText(p)}</td><td className="r">{balanceText(p)}</td><td><FinBadge f={finStatus(p)} /></td>
               </tr>))}</tbody>
           </table></div>
         )}

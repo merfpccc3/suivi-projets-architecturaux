@@ -20,10 +20,11 @@ export default function ProjectForm() {
   const submit = (e: any) => {
     e.preventDefault();
     if (!f.title.trim() || !f.client.trim()) { toast.error("L'intitulé et le nom du client sont obligatoires"); return; }
-    const data = { ...f, fees: Number(f.fees) || 0, advance: Number(f.advance) || 0 };
+    const amt = (v: any) => (v === '' || v == null || !(Number(v) > 0) ? '' : Number(v));
+    const data = { ...f, fees: amt(f.fees), advance: amt(f.advance) };
     if (existing) {
       const changes = Object.keys(TRACKED).filter((k) => String(existing[k] ?? '') !== String(data[k] ?? ''))
-        .map((k) => k === 'status' ? `statut → ${statusLabel(data.status)}` : k === 'fees' ? `honoraires → ${fcfa(data.fees)}` : k === 'deadline' ? `livraison → ${fdate(data.deadline)}` : TRACKED[k]);
+        .map((k) => k === 'status' ? `statut → ${statusLabel(data.status)}` : k === 'fees' ? `honoraires → ${data.fees ? fcfa(data.fees) : 'à renseigner'}` : k === 'deadline' ? `livraison → ${fdate(data.deadline)}` : TRACKED[k]);
       const ok = updateProject(existing.id, (p: any) => ({ ...p, ...data }), changes.length ? `Modification : ${changes.join(', ')}` : 'Mise à jour des informations');
       if (ok) { toast.success('Projet mis à jour'); nav(`/projets/${existing.id}`); }
     } else {
@@ -71,10 +72,10 @@ export default function ProjectForm() {
       </Card>
       <Card title="Honoraires">
         <div className="form-grid">
-          <Field label="Honoraires totaux convenus (FCFA)">{inp('fees', { type: 'number', min: 0 })}</Field>
-          <Field label="Montant de l'avance (FCFA)">{inp('advance', { type: 'number', min: 0 })}</Field>
+          <Field label="Honoraires convenus (FCFA)">{inp('fees', { type: 'number', min: 0, placeholder: 'À renseigner' })}</Field>
+          <Field label="Avance convenue (FCFA)">{inp('advance', { type: 'number', min: 0, placeholder: 'À renseigner' })}</Field>
         </div>
-        <p className="muted small">{existing ? "Modifier l'avance ici ne crée pas de paiement : enregistrez les encaissements dans l'onglet Finances." : "L'avance saisie est automatiquement enregistrée comme premier paiement (avec reçu)."}</p>
+        <p className="muted small">L'avance convenue est indicative : les sommes réellement reçues s'enregistrent dans l'onglet Finances.</p>
       </Card>
       <div className="form-foot"><button type="submit" className="btn primary" data-testid="form-submit-bottom-btn"><Save size={16} />Enregistrer le projet</button></div>
     </form>

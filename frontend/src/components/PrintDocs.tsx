@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import { Printer, Download, X } from 'lucide-react';
 import { useStore } from '../store';
 import { Project } from '../types';
-import { STATUSES, STEP_STATUSES, balance, fcfa, fdate, finLabel, finStatus, nowTime, progress, statusLabel, today, totalPaid } from '../lib/data';
+import { STATUSES, STEP_STATUSES, balance, balanceText, feesText, rateText, fcfa, fdate, finLabel, finStatus, nowTime, progress, statusLabel, today, totalPaid } from '../lib/data';
 
 const PrintCtx = createContext<any>(null);
 export const usePrint = () => useContext(PrintCtx);
@@ -102,10 +102,11 @@ const PaymentsTable = ({ p }: { p: Project }) => (
 
 const FinSummary = ({ p }: { p: Project }) => (
   <div className="doc-totals avoid-break">
-    <div><span>Honoraires convenus</span><b>{fcfa(p.fees)}</b></div>
-    <div><span>Avance convenue</span><b>{fcfa(p.advance)}</b></div>
+    <div><span>Honoraires convenus</span><b>{feesText(p)}</b></div>
+    <div><span>Avance convenue</span><b>{Number(p.advance) > 0 ? fcfa(p.advance) : 'À renseigner'}</b></div>
     <div><span>Total encaissé</span><b className="pos">{fcfa(totalPaid(p))}</b></div>
-    <div><span>Solde restant</span><b>{fcfa(balance(p))}</b></div>
+    <div><span>Solde restant</span><b>{balanceText(p)}</b></div>
+    <div><span>Taux d'encaissement</span><b>{rateText(p)}</b></div>
   </div>
 );
 
@@ -164,6 +165,7 @@ export function FinanceStatement({ projects, single }: { projects: Project[]; si
   }
   const fees = projects.reduce((s, p) => s + (Number(p.fees) || 0), 0);
   const paid = projects.reduce((s, p) => s + totalPaid(p), 0);
+  const due = projects.reduce((s, p) => s + Math.max(0, balance(p)), 0);
   const pays = projects.flatMap((p) => p.payments.map((x) => ({ ...x, p }))).sort((a, b) => a.date.localeCompare(b.date));
   return (
     <div data-testid="doc-finance-statement">
@@ -171,12 +173,12 @@ export function FinanceStatement({ projects, single }: { projects: Project[]; si
       <div className="doc-totals avoid-break">
         <div><span>Honoraires convenus</span><b>{fcfa(fees)}</b></div>
         <div><span>Total encaissé</span><b className="pos">{fcfa(paid)}</b></div>
-        <div><span>Reste à percevoir</span><b>{fcfa(fees - paid)}</b></div>
+        <div><span>Reste à percevoir</span><b>{fcfa(due)}</b></div>
       </div>
       <h4 className="doc-sec">Situation par projet</h4>
       <table className="doc-table">
         <thead><tr><th>N°</th><th>Projet</th><th>Client</th><th className="r">Honoraires</th><th className="r">Encaissé</th><th className="r">Solde</th></tr></thead>
-        <tbody>{projects.map((p) => <tr key={p.id}><td>{p.number}</td><td>{p.title}</td><td>{p.client}</td><td className="r">{fcfa(p.fees)}</td><td className="r">{fcfa(totalPaid(p))}</td><td className="r">{fcfa(balance(p))}</td></tr>)}</tbody>
+        <tbody>{projects.map((p) => <tr key={p.id}><td>{p.number}</td><td>{p.title}</td><td>{p.client}</td><td className="r">{feesText(p)}</td><td className="r">{fcfa(totalPaid(p))}</td><td className="r">{balanceText(p)}</td></tr>)}</tbody>
       </table>
       <h4 className="doc-sec">Paiements reçus</h4>
       <table className="doc-table">
@@ -244,9 +246,9 @@ export function Receipt({ p, pay }: any) {
       <div className="receipt-amount avoid-break"><span>Montant reçu</span><b>{fcfa(pay.amount)}</b></div>
       <KV rows={[['Reçu N°', pay.receiptNo], ['Reçu de', p.client], ['Projet', `${p.title} (${p.number})`], ['Date du paiement', fdate(pay.date)], ['Mode de paiement', pay.mode], ['Référence', pay.ref], ['Objet', pay.obs || "Honoraires d'architecture"]]} />
       <div className="doc-totals avoid-break">
-        <div><span>Honoraires convenus</span><b>{fcfa(p.fees)}</b></div>
+        <div><span>Honoraires convenus</span><b>{feesText(p)}</b></div>
         <div><span>Total encaissé à cette date</span><b>{fcfa(paidAt)}</b></div>
-        <div><span>Solde restant</span><b>{fcfa((Number(p.fees) || 0) - paidAt)}</b></div>
+        <div><span>Solde restant</span><b>{balanceText(p, paidAt)}</b></div>
       </div>
       <Signature />
     </div>

@@ -5,7 +5,7 @@ import { Pencil, Printer, Trash2, ArrowLeft } from 'lucide-react';
 import { useProject, useStore } from '../store';
 import { Card, Empty, FinBadge, Progress } from '../components/ui';
 import { usePrint, ProjectSheet } from '../components/PrintDocs';
-import { STATUSES, balance, fcfa, fdate, fdatetime, finStatus, progress, statusLabel, totalPaid } from '../lib/data';
+import { STATUSES, balanceText, feesText, fcfa, fdate, fdatetime, finStatus, progress, statusLabel, totalPaid } from '../lib/data';
 import { InfoTab } from './detail/InfoTab';
 import { StepsTab } from './detail/StepsTab';
 import { TasksTab } from './detail/TasksTab';
@@ -39,9 +39,9 @@ export default function ProjectDetail() {
       </div>
       <div className="summary">
         <div><span>Avancement</span><Progress value={progress(p)} testId="project-progress" /></div>
-        <div><span>Honoraires</span><b data-testid="summary-fees">{fcfa(p.fees)}</b></div>
+        <div><span>Honoraires</span><b data-testid="summary-fees">{feesText(p)}</b></div>
         <div><span>Encaissé</span><b className="pos" data-testid="summary-paid">{fcfa(totalPaid(p))}</b></div>
-        <div><span>Solde restant</span><b data-testid="summary-balance">{fcfa(balance(p))}</b> <FinBadge f={finStatus(p)} /></div>
+        <div><span>Solde restant</span><b data-testid="summary-balance">{balanceText(p)}</b> <FinBadge f={finStatus(p)} /></div>
         <div><span>Livraison prévue</span><b>{fdate(p.deadline)}</b></div>
       </div>
       <div className="tabs" data-testid="project-tabs">

@@ -37,13 +37,21 @@ export const fdatetime = (iso: string) => { const d = new Date(iso); return `${d
 export const emptyProject = (): Partial<Project> => ({
   title: '', client: '', phone: '', receivedDate: today(), receivedTime: nowTime(), location: '', type: PROJECT_TYPES[0],
   description: '', concept: '', needs: '', observations: '', landArea: '', builtArea: '', levels: '', rooms: '', budget: '',
-  status: 'nouveau', deadline: '', fees: 0, advance: 0,
+  status: 'nouveau', deadline: '', fees: '' as any, advance: '' as any,
 });
 
 export const totalPaid = (p: Project) => (p.payments || []).reduce((s, x) => s + (Number(x.amount) || 0), 0);
-export const balance = (p: Project) => (Number(p.fees) || 0) - totalPaid(p);
-export const finStatus = (p: Project) => ((Number(p.fees) || 0) <= 0 ? 'none' : balance(p) <= 0 ? 'paid' : 'due');
-export const finLabel = (f: string) => ({ none: 'Honoraires non définis', paid: 'Entièrement payé', due: 'Solde à percevoir' } as any)[f];
+export const hasFees = (p: Project) => Number(p.fees) > 0;
+export const balance = (p: Project) => (hasFees(p) ? Number(p.fees) - totalPaid(p) : 0);
+export const finStatus = (p: Project) => (!hasFees(p) ? 'none' : balance(p) < 0 ? 'over' : balance(p) === 0 ? 'paid' : 'due');
+export const finLabel = (f: string) => ({ none: 'Honoraires à renseigner', paid: 'Entièrement payé', due: 'Solde à percevoir', over: 'Trop-perçu' } as any)[f];
+export const feesText = (p: Project) => (hasFees(p) ? fcfa(p.fees) : 'À renseigner');
+export const balanceText = (p: Project, paid = totalPaid(p)) => {
+  if (!hasFees(p)) return 'À renseigner';
+  const b = Number(p.fees) - paid;
+  return b < 0 ? `Trop-perçu : ${fcfa(-b)}` : fcfa(b);
+};
+export const rateText = (p: Project, paid = totalPaid(p)) => (hasFees(p) ? `${Math.round((paid / Number(p.fees)) * 100)} %` : '—');
 
 export const progress = (p: Project) => {
   if (p.tasks?.length) return Math.round((p.tasks.filter((t) => t.done).length / p.tasks.length) * 100);

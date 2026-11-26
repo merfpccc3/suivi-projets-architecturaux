@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { AppData, Payment, Project } from './types';
-import { DEFAULT_SETTINGS, DEFAULT_STEPS, emptyProject, fcfa, nowIso, today, uid } from './lib/data';
+import { DEFAULT_SETTINGS, DEFAULT_STEPS, emptyProject, fcfa, nowIso, uid } from './lib/data';
 
 export const STORAGE_KEY = 'suivi_projets_architecture_v1';
 
@@ -32,12 +32,8 @@ export function StoreProvider({ children }: any) {
 
   const createProject = (input: Partial<Project>) => {
     const d = ref.current; const s = d.settings; const id = uid();
-    let nextReceipt = s.nextReceipt; const payments: Payment[] = [];
+    const nextReceipt = s.nextReceipt; const payments: Payment[] = [];
     const history = [{ date: nowIso(), text: 'Création du dossier' }];
-    if ((Number(input.advance) || 0) > 0) {
-      payments.push({ id: uid(), receiptNo: receiptNo(nextReceipt++), date: input.receivedDate || today(), amount: Number(input.advance), mode: 'Espèces', ref: '', obs: 'Avance' });
-      history.push({ date: nowIso(), text: `Avance enregistrée : ${fcfa(input.advance)}` });
-    }
     const p = {
       ...emptyProject(), ...input, id, number: `ARCH-${yr()}-${String(s.nextProject).padStart(3, '0')}`,
       steps: DEFAULT_STEPS.map((name) => ({ id: uid(), name, start: '', end: '', obs: '', status: 'a_faire' })),
