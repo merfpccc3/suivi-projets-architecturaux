@@ -1,0 +1,23 @@
+{
+  "summary": "Focused frontend E2E check of the Finances fix (Playwright, desktop 1920). All 7 requested areas pass. (1) A project with fees 200000 and advance 50000 shows fin-paid 0 FCFA and fin-advance 50 000 FCFA, so the advance is not counted as a payment and no payment is created from it. (2) Adding a payment of 50000 gives fin-paid 50 000 FCFA, fin-balance 150 000 FCFA, fin-rate 25 %, summary-balance 150 000 FCFA, and dashboard stat-paid 50 000 / stat-due 150 000. (3) Editing the payment to 80000 (with confirm) recalculates to 80 000 / 120 000 / 40 % and closes the modal. Deleting a payment (with confirm) recalculates. The history tab logs received, edited and deleted payments. (4) A project without fees shows 'À renseigner' in summary-fees, fin-fees, fin-balance and summary-balance, and the rate shows '—', even after a 30000 payment. No negative balance. (5) Overpayment (230000 paid on 200000 fees) shows 'Trop-perçu : 30 000 FCFA' in fin-balance and the header, a Trop-perçu badge, rate 115 %, and dashboard stat-due 0. (6) The printed état financier shows the same figures, including the taux d'encaissement, for normal, overpaid and no-fees projects. The receipt preview shows 'Total encaissé à cette date' 50 000 and Solde 150 000, which is correct. (7) When editing a project without fees, form-fees and form-advance stay empty, and after saving it still shows 'À renseigner'. No page errors. localStorage was cleared at the end.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Dashboard money stats", "issues": ["Minor: stat-paid includes payments on projects without fees, while stat-fees and stat-due leave those projects out. Overpayments are clamped to 0 in stat-due and not reported anywhere on the dashboard. This is acceptable, but a 'Trop-perçu' indicator could be added."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "FinanceTab saveEdit spreads the whole edit object, so amount is stored as a Number. Fine.",
+    "The Dashboard due sum uses Math.max(0, balance), so overpayment on one project does not offset another. This is intended."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (no backend)", "frontend": "100%"},
+  "seed_data_creation": "Created TEST_Fin A and TEST_Fin B in an isolated browser context. localStorage was cleared at the end.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Finance testids: fin-fees/advance/paid/balance/rate, summary-fees/paid/balance, pay-amount, add-payment-btn, edit-payment-REC-*, edit-pay-amount, edit-pay-save, delete-payment-REC-*, print-finance-btn, doc-finance-statement, print-receipt-REC-*, doc-receipt, close-preview-btn, tab-history, history-list, stat-fees/paid/due. Accept window.confirm via page.on('dialog') with asyncio imported."
+}

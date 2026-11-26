@@ -16,5 +16,7 @@ User choices: en-tête « SUIVI DES PROJETS D'ARCHITECTURE — Gestion – Conce
 
 - 2026-11-26: removed platform script from index.html; customizable identity (owner name, logo ≤300 Ko) in Settings, shown in sidebar + printed docs.
 
+- 2026-11-26: Finances fix — fees/advance optional ('À renseigner'), advance no longer auto-creates payment, taux d'encaissement, trop-perçu, edit payment with confirm (iteration_2: 100%).
+
 ## Backlog
 - P2: log step field edits in history; French date picker display.
