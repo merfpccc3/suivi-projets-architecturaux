@@ -16,6 +16,12 @@ export function FinanceTab({ p }: any) {
     if (!window.confirm(`Enregistrer les modifications du paiement ${edit.receiptNo} ?`)) return;
     if (updateProject(p.id, (y: any) => ({ ...y, payments: y.payments.map((z: any) => (z.id === edit.id ? { ...edit, amount } : z)) }), `Paiement modifié : ${edit.receiptNo} (${fcfa(amount)})`)) { toast.success('Paiement modifié'); setEdit(null); }
   };
+  const [fees, setFees] = useState<any>({ fees: p.fees ?? '', advance: p.advance ?? '' });
+  const saveFees = () => {
+    const amt = (v: any) => (Number(v) > 0 ? Number(v) : '');
+    const n = { fees: amt(fees.fees), advance: amt(fees.advance) };
+    if (updateProject(p.id, (y: any) => ({ ...y, ...n }), `Montants convenus : honoraires ${n.fees ? fcfa(n.fees) : 'à renseigner'}, avance ${n.advance ? fcfa(n.advance) : 'à renseigner'}`)) toast.success('Montants convenus enregistrés');
+  };
   const set = (k: string) => (e: any) => setF({ ...f, [k]: e.target.value });
   const printReceipt = (pay: any) => print({ title: `Reçu ${pay.receiptNo}`, filename: `recu_${pay.receiptNo}`, node: <Receipt p={p} pay={pay} /> });
 
@@ -40,7 +46,12 @@ export function FinanceTab({ p }: any) {
           <div><span>Solde restant</span><b data-testid="fin-balance">{balanceText(p)}</b></div>
           <div><span>Taux d'encaissement</span><b data-testid="fin-rate">{rateText(p)}</b></div>
         </div>
-        <p><FinBadge f={finStatus(p)} /> <span className="muted small">Modifiez les honoraires via « Modifier ».</span></p>
+        <p><FinBadge f={finStatus(p)} /></p>
+        <div className="form-grid" data-testid="agreed-amounts-form">
+          <Field label="Honoraires convenus (FCFA)"><input type="number" min={0} placeholder="À renseigner" value={fees.fees} onChange={(e) => setFees({ ...fees, fees: e.target.value })} data-testid="fin-fees-input" /></Field>
+          <Field label="Avance convenue (FCFA)"><input type="number" min={0} placeholder="À renseigner" value={fees.advance} onChange={(e) => setFees({ ...fees, advance: e.target.value })} data-testid="fin-advance-input" /></Field>
+          <div className="full"><button className="btn primary" onClick={saveFees} data-testid="save-agreed-amounts-btn">Enregistrer les montants convenus</button></div>
+        </div>
       </Card>
       <Card title="Enregistrer un paiement">
         <form className="form-grid" onSubmit={submit} data-testid="payment-form">
