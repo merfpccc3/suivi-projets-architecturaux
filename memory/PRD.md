@@ -14,5 +14,7 @@ User choices: en-tête « SUIVI DES PROJETS D'ARCHITECTURE — Gestion – Conce
 - All sections 2–16 implemented; tested E2E by testing agent (iteration_1: 97%, no blocking bugs).
 - Fixes after test: receipt shows totals as of its payment date; note on advance edit; task edits logged.
 
+- 2026-11-26: removed platform script from index.html; customizable identity (owner name, logo ≤300 Ko) in Settings, shown in sidebar + printed docs.
+
 ## Backlog
 - P2: log step field edits in history; French date picker display.

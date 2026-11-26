@@ -66,10 +66,11 @@ export function DocHeader({ title, subtitle }: any) {
   return (
     <div className="doc-head">
       <div className="doc-brand">
-        <div className="doc-logo">SP</div>
+        {s.logo ? <img src={s.logo} alt="Logo" className="doc-logo-img" /> : <div className="doc-logo">SP</div>}
         <div>
           <div className="doc-org">{s.header}</div>
           <div className="doc-sub">{s.subheader}</div>
+          {s.owner && <div className="doc-sub"><b>{s.owner}</b></div>}
           <div className="doc-contact">{[s.address, s.phone, s.email].filter(Boolean).join(' · ')}</div>
         </div>
       </div>

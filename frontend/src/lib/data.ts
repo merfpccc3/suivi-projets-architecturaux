@@ -21,7 +21,7 @@ export const DEFAULT_STEPS = ['Réception et étude du dossier', 'Analyse des be
 export const DEFAULT_SETTINGS: Settings = {
   header: "SUIVI DES PROJETS D'ARCHITECTURE",
   subheader: 'Gestion – Conception – Suivi des réalisations',
-  address: '', phone: '', email: '', nextProject: 1, nextReceipt: 1,
+  owner: '', logo: '', address: '', phone: '', email: '', nextProject: 1, nextReceipt: 1,
 };
 
 export const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36);

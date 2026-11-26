@@ -18,7 +18,7 @@ export interface Project {
 }
 
 export interface Settings {
-  header: string; subheader: string; address: string; phone: string; email: string;
+  header: string; subheader: string; owner: string; logo: string; address: string; phone: string; email: string;
   nextProject: number; nextReceipt: number;
 }
 

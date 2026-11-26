@@ -21,6 +21,8 @@ input[type=file] { padding: 7px; }
 .sidebar { width: 252px; background: var(--navy); color: #c9d5e6; display: flex; flex-direction: column; position: fixed; inset: 0 auto 0 0; z-index: 40; transition: transform .25s ease; }
 .brand { display: flex; align-items: center; gap: 12px; padding: 22px 18px; border-bottom: 1px solid rgba(255,255,255,.08); }
 .brand-mark, .doc-logo { width: 40px; height: 40px; border-radius: 10px; background: #fff; color: var(--navy); font-family: 'Archivo'; font-weight: 800; display: grid; place-items: center; flex-shrink: 0; }
+.brand-logo { width: 40px; height: 40px; border-radius: 10px; object-fit: contain; background: #fff; flex-shrink: 0; }
+.doc-logo-img { width: 18mm; height: 18mm; object-fit: contain; }
 .brand-name { font-family: 'Archivo'; font-weight: 800; color: #fff; letter-spacing: .04em; font-size: .98rem; }
 .brand-sub { font-size: .75rem; color: #8ea3c0; text-transform: uppercase; letter-spacing: .14em; }
 .brand .close-nav { margin-left: auto; color: #fff; display: none; }

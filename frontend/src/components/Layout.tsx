@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
+import { useStore } from '../store';
 import { LayoutDashboard, FolderKanban, FilePlus2, Wallet, Printer, Settings, Menu, X } from 'lucide-react';
 
 const NAV = [
@@ -14,13 +15,14 @@ const NAV = [
 export function Layout({ children }: any) {
   const [open, setOpen] = useState(false);
   const loc = useLocation();
+  const s = useStore().data.settings;
   useEffect(() => { setOpen(false); window.scrollTo(0, 0); }, [loc.pathname]);
   return (
     <div className="app">
       <aside className={`sidebar ${open ? 'open' : ''}`} data-testid="sidebar">
         <div className="brand">
-          <div className="brand-mark">SP</div>
-          <div><div className="brand-name">SUIVI PROJETS</div><div className="brand-sub">Architecture</div></div>
+          {s.logo ? <img src={s.logo} alt="Logo" className="brand-logo" /> : <div className="brand-mark">SP</div>}
+          <div><div className="brand-name">SUIVI PROJETS</div><div className="brand-sub">{s.owner || 'Architecture'}</div></div>
           <button className="icon-btn close-nav" onClick={() => setOpen(false)}><X size={18} /></button>
         </div>
         <nav>
