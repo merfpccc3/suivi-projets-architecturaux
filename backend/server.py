@@ -1,6 +1,8 @@
 import asyncio
 from contextlib import suppress
-from fastapi import FastAPI, APIRouter, Query
+from datetime import datetime, timedelta, timezone
+import hmac
+from fastapi import FastAPI, APIRouter, Depends, Header, HTTPException, Query
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -11,7 +13,7 @@ from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict
 from typing import List
 import uuid
-from datetime import datetime, timezone
+import jwt
 
 
 ROOT_DIR = Path(__file__).parent
@@ -57,10 +59,73 @@ class StatusCheck(BaseModel):
 class StatusCheckCreate(BaseModel):
     client_name: str
 
+class SharedLogin(BaseModel):
+    password: str
+
+class SharedAppData(BaseModel):
+    projects: List[dict]
+    settings: dict
+
+def get_jwt_secret() -> str:
+    secret = os.environ.get("JWT_SECRET", "")
+    if len(secret) < 32:
+        raise HTTPException(status_code=500, detail="JWT_SECRET must be at least 32 characters")
+    return secret
+
+async def require_shared_session(authorization: str | None = Header(default=None)) -> str:
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Authentication required")
+    token = authorization.removeprefix("Bearer ").strip()
+    try:
+        claims = jwt.decode(token, get_jwt_secret(), algorithms=["HS256"])
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid or expired session")
+    if claims.get("sub") != "shared-cabinet":
+        raise HTTPException(status_code=401, detail="Invalid session")
+    return "shared-cabinet"
+
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
 async def root():
     return {"message": "Hello World"}
+
+@api_router.post("/auth/login")
+async def login(input: SharedLogin):
+    password = os.environ.get("APP_PASSWORD", "")
+    if not password or not hmac.compare_digest(input.password.encode("utf-8"), password.encode("utf-8")):
+        raise HTTPException(status_code=401, detail="Incorrect password")
+    token = jwt.encode(
+        {
+            "sub": "shared-cabinet",
+            "exp": datetime.now(timezone.utc) + timedelta(days=7),
+        },
+        get_jwt_secret(),
+        algorithm="HS256",
+    )
+    return {"token": token}
+
+@api_router.get("/data")
+async def get_shared_data(_: str = Depends(require_shared_session)):
+    saved = await db.app_data.find_one({"_id": "shared-cabinet"})
+    if not saved:
+        return {"exists": False, "projects": [], "settings": {}}
+    return {
+        "exists": True,
+        "projects": saved.get("projects", []),
+        "settings": saved.get("settings", {}),
+    }
+
+@api_router.put("/data")
+async def save_shared_data(
+    input: SharedAppData,
+    _: str = Depends(require_shared_session),
+):
+    await db.app_data.replace_one(
+        {"_id": "shared-cabinet"},
+        {"_id": "shared-cabinet", **input.model_dump()},
+        upsert=True,
+    )
+    return {"saved": True}
 
 @api_router.post("/status", response_model=StatusCheck)
 async def create_status_check(input: StatusCheckCreate):

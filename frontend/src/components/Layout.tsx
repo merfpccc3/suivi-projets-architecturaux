@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useStore } from '../store';
-import { LayoutDashboard, FolderKanban, FilePlus2, Wallet, Printer, Settings, Menu, X } from 'lucide-react';
+import { LayoutDashboard, FolderKanban, FilePlus2, Wallet, Printer, Settings, Menu, X, LogOut } from 'lucide-react';
 
 const NAV = [
   { to: '/', l: 'Tableau de bord', i: LayoutDashboard, id: 'dashboard', end: true },
@@ -15,7 +15,8 @@ const NAV = [
 export function Layout({ children }: any) {
   const [open, setOpen] = useState(false);
   const loc = useLocation();
-  const s = useStore().data.settings;
+  const { data, syncStatus, logout, retrySync } = useStore();
+  const s = data.settings;
   useEffect(() => { setOpen(false); window.scrollTo(0, 0); }, [loc.pathname]);
   return (
     <div className="app">
@@ -32,7 +33,15 @@ export function Layout({ children }: any) {
             </NavLink>
           ))}
         </nav>
-        <div className="side-foot">Données stockées sur cet appareil</div>
+        <div className="side-foot">
+          <div className={`sync-label ${syncStatus}`}>
+            {syncStatus === 'synced' && 'Données synchronisées'}
+            {(syncStatus === 'pending' || syncStatus === 'syncing') && 'Synchronisation…'}
+            {syncStatus === 'error' && 'Synchronisation interrompue'}
+          </div>
+          {syncStatus === 'error' && <button className="side-action" onClick={retrySync}>Réessayer</button>}
+          <button className="side-action" onClick={logout}><LogOut size={14} />Se déconnecter</button>
+        </div>
       </aside>
       {open && <div className="backdrop" onClick={() => setOpen(false)} />}
       <div className="main">
